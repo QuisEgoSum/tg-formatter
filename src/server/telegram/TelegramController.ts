@@ -5,6 +5,9 @@ import {Logger} from 'pino'
 
 
 export class TelegramController {
+
+  protected send_error_message = true
+
   constructor(
     public readonly logger: Logger = defaultLogger.child({label: 'TelegramController'})
   ) {
@@ -36,11 +39,17 @@ export class TelegramController {
   }
 
   private async _error_handler(ctx: Context, error: Error): Promise<void> {
-    if (error instanceof ApplicationError) {
-      await ctx.reply(error.message)
+    if (this.send_error_message) {
+      if (error instanceof ApplicationError) {
+        await ctx.reply(error.message)
+      } else {
+        this.logger.error(error)
+        await ctx.reply('An error has occurred. The bot administrator has been notified about this')
+      }
     } else {
-      this.logger.error(error)
-      await ctx.reply('An error has occurred. The bot administrator has been notified about this')
+      if (!(error instanceof ApplicationError)) {
+        this.logger.error(error)
+      }
     }
   }
 }

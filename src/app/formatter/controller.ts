@@ -5,6 +5,7 @@ import extract from './utils'
 
 
 export class Controller extends TelegramController {
+    protected send_error_message = false
     constructor(
         private readonly telegram: Telegram
     ) {
