@@ -23,7 +23,7 @@ export class Controller extends TelegramController {
             const formatted = JSON.stringify(item.result, null, 2)
             const left = restMessage.slice(0, item.start - (message.length - restMessage.length))
             restMessage = restMessage.slice(item.end - (message.length - restMessage.length))
-            formatterMessage += left.trim() + '```\n' + formatted + '```\n'
+            formatterMessage += left.trim() + '\n```\n' + formatted + '```\n\n'
         }
         formatterMessage += restMessage.trim()
 
