@@ -38,6 +38,9 @@ export class FormatterController extends TelegramController {
             return
         }
         const formatted = this.service.format(message, entities)
+        if (formatted == null) {
+            return
+        }
         const chat = post.sender_chat as Chat
         if (isCaption) {
             await this.telegram.bot.telegram.editMessageCaption(

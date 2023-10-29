@@ -15,20 +15,15 @@ export class FormatterService {
   removeEntityIntersection(entities: MessageEntity[], entity: MessageEntity) {
     const clearEntities: MessageEntity[] = []
     for (const existsEntity of entities) {
-      const start = entity.offset
-      const end = entity.offset + entity.length
-      const existsEnd = existsEntity.offset + existsEntity.length
-      if (
-        !(
-          (
-            existsEntity.offset > start && existsEntity.offset < end
-            || existsEnd > start && existsEnd < end
-          ) || (
-            existsEntity.offset == entity.offset
-            && existsEntity.length == entity.length
-          )
-        )
-      ) {
+      const a1 = entity.offset
+      const a2 = entity.offset + entity.length
+      const b1 = existsEntity.offset
+      const b2 = existsEntity.offset + existsEntity.length
+      if (a1 < b2 && a2 > b1) {
+        if ((a1 === b1 && a2 === b1) || (a1 === b2 && a2 === b2) || (a1 === b2 && a2 === b1)) {
+          clearEntities.push(existsEntity)
+        }
+      } else {
         clearEntities.push(existsEntity)
       }
     }
@@ -44,27 +39,33 @@ export class FormatterService {
   }
 
   format(message: string, entities: MessageEntity[]) {
+    const sourceMessage = message
     let messageOffset: number = 0
     const json = extract(message)
+    if (!json.length) {
+      return null
+    }
+    const entities_json = JSON.stringify(entities)
     for (const jsonItem of json) {
       let currentOffsetChanges = 0
       const formatted_json = JSON.stringify(jsonItem.result, null, 2)
-      const offset = jsonItem.start + messageOffset + 1
+      const offset = jsonItem.start + messageOffset
       const length = formatted_json.length
       const entity = this.getJsonEntity(offset, length)
       const source_json = message.substring(jsonItem.start, jsonItem.end)
       if (formatted_json != source_json) {
         message = message.substring(0, jsonItem.start + messageOffset)
-          + '\n'
           + formatted_json
-          + '\n'
           + message.substring(jsonItem.end + messageOffset)
-        currentOffsetChanges = (2 + formatted_json.length - source_json.length)
+        currentOffsetChanges = (formatted_json.length - source_json.length)
         messageOffset += currentOffsetChanges
       }
-      entities = this.removeEntityIntersection(entities, entity)
       this.correctionEntityOffset(entities, currentOffsetChanges, entity.offset)
+      entities = this.removeEntityIntersection(entities, entity)
       entities.push(entity)
+    }
+    if (sourceMessage == message && entities_json == JSON.stringify(entities)) {
+      return null
     }
     return {
       message, entities
