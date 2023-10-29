@@ -1,7 +1,8 @@
-import {Controller} from "@app/formatter/controller"
+import {FormatterController} from "@app/formatter/FormatterController"
 import {Telegram} from '@server/telegram/Telegram'
+import {FormatterService} from '@app/formatter/FormatterService'
 
 
 export async function initFormatter(telegram: Telegram) {
-    new Controller(telegram)
+    new FormatterController(telegram, new FormatterService())
 }
