@@ -35,24 +35,35 @@ export class FormatterService {
     return clearEntities
   }
 
+  correctionEntityOffset(entities: MessageEntity[], offset: number, start: number) {
+    for (const entity of entities) {
+      if (entity.offset > start) {
+        entity.offset += offset
+      }
+    }
+  }
+
   format(message: string, entities: MessageEntity[]) {
-    let message_offset: number = 0
+    let messageOffset: number = 0
     const json = extract(message)
     for (const jsonItem of json) {
+      let currentOffsetChanges = 0
       const formatted_json = JSON.stringify(jsonItem.result, null, 2)
-      const offset = jsonItem.start + message_offset + 1
+      const offset = jsonItem.start + messageOffset + 1
       const length = formatted_json.length
       const entity = this.getJsonEntity(offset, length)
       const source_json = message.substring(jsonItem.start, jsonItem.end)
       if (formatted_json != source_json) {
-        message = message.substring(0, jsonItem.start + message_offset)
+        message = message.substring(0, jsonItem.start + messageOffset)
           + '\n'
           + formatted_json
           + '\n'
-          + message.substring(jsonItem.end + message_offset)
-        message_offset += (2 + formatted_json.length - source_json.length)
+          + message.substring(jsonItem.end + messageOffset)
+        currentOffsetChanges = (2 + formatted_json.length - source_json.length)
+        messageOffset += currentOffsetChanges
       }
       entities = this.removeEntityIntersection(entities, entity)
+      this.correctionEntityOffset(entities, currentOffsetChanges, entity.offset)
       entities.push(entity)
     }
     return {
