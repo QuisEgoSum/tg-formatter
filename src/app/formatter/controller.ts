@@ -2,7 +2,6 @@ import {TelegramController} from "@server/telegram/TelegramController"
 import {Telegram} from '@server/telegram/Telegram'
 import {Context} from 'telegraf'
 import extract from './utils'
-import {xhtmlEntities} from '@typescript-eslint/typescript-estree/dist/jsx/xhtml-entities'
 
 
 export class Controller extends TelegramController {
@@ -33,7 +32,7 @@ export class Controller extends TelegramController {
                 const formatted = JSON.stringify(item.result, null, 2)
                 const left = restMessage.slice(0, item.start - (message.length - restMessage.length))
                 restMessage = restMessage.slice(item.end - (message.length - restMessage.length))
-                formatterMessage += left.trim() + '\n```\n' + formatted + '```\n\n'
+                formatterMessage += left.trim() + '\n```json\n' + formatted + '```\n\n'
             }
             formatterMessage += restMessage
 

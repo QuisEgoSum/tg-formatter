@@ -6,3 +6,4 @@ src/**/*.js
 !src/app/formatter/utils.js
 package-lock.json
 /tmp
+/config/local.yaml
